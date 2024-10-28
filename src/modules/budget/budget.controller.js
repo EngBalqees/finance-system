@@ -16,7 +16,6 @@ export const createBudget = async (req, res) => {
         await newbudget.save();
         return res.status(201).json({ message: "Budget created successfully", newbudget });
     } catch (error) {
-        console.error("Error creating budget:", error); // Logs error to console
         return res.status(500).json({ message: "Error creating budget", error: error.message });
     }
 }
