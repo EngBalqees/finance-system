@@ -18,8 +18,7 @@ const UserSchema = new Schema({
     }, // Hashed with bcrypt
     role: {
         type: String,
-        enum: ['user', 'superAdmin'],
-        default: 'user'
+        enum: ["user", "superAdmin"],
     }, // Role-based control
     createdAt: {
         type: Date,
