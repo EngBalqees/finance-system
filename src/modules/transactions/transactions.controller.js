@@ -53,12 +53,20 @@ export const updateTransaction = async (req, res) => {
 export const deleteTransaction = async (req, res) => {
     const { transactionId } = req.params;
     try {
-        const query = req.user.role === "superadmin" ? { _id: transactionId } : { _id: transactionId, userId: req.user.userId };
-        const transaction = await Transaction.findOneAndDelete(query);
-        if (!transaction) return res.status(404).json({ message: "Transaction not found or unauthorized" });
-        return res.status(200).json({ message: "Transaction deleted successfully" });
-
-    } catch (error) {
-        return res.status(500).json({ message: "error in deleting", error });
-    }
+        // Find and delete the transaction only if it belongs to the logged-in user
+        const transaction = await Transaction.findOneAndDelete({ 
+          _id: transactionId, 
+          userId: req.user.userId // Ensure the transaction belongs to the current user
+        });
+    
+        if (!transaction) {
+          // Transaction not found or unauthorized
+          return res.status(404).json({ message: "Transaction not found or unauthorized" });
+        }
+    
+        res.status(200).json({ message: "Transaction deleted successfully" });
+      } catch (error) {
+        console.error("Error deleting transaction:", error);
+        res.status(500).json({ message: "Error deleting transaction", error: error.message });
+      }
 }
