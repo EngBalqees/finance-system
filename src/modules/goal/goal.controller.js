@@ -2,7 +2,7 @@ import goal from "../../../DB/model/goal.model.js";
 
 //Create Goal (User Only)
 export const createGoal = async (req, res) => {
-    const { name,  title, description, targetAmount, deadline, priority } = req.body;
+    const { name, description, targetAmount, deadline, priority } = req.body;
 
     try {
         const newgoal = new goal({
