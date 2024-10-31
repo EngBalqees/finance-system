@@ -8,7 +8,9 @@ const port = 3000;
 app.get('/', (req, res) => {
     res.send('Hello, World!');
   });
-  
+  app.get('/', (req, res) => {
+    res.send('Welcome to the Finance System');
+  });
   // Another sample route
   app.get('/api/test', (req, res) => {
     res.json({ message: 'API is working!' });
