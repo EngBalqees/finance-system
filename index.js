@@ -6,14 +6,13 @@ const app = exress();
 initApp(app,exress);
 const port = 3000;
 app.get('/', (req, res) => {
-    res.send('Hello, World!');
-  });
-  app.get('/', (req, res) => {
+    console.log("Root route accessed");
     res.send('Welcome to the Finance System');
   });
-  // Another sample route
-  app.get('/api/test', (req, res) => {
-    res.json({ message: 'API is working!' });
+  
+  app.get('/test', (req, res) => {
+    console.log("Test route accessed");
+    res.send('Test route is working');
   });
   
 app.listen(port, ()=>console.log(`Listen on port ${port}`));
