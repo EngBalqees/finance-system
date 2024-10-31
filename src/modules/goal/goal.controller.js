@@ -2,14 +2,16 @@ import goal from "../../../DB/model/goal.model.js";
 
 //Create Goal (User Only)
 export const createGoal = async (req, res) => {
-    const { name, targetAmount, deadline } = req.body;
+    const { name,  title, description, targetAmount, deadline, priority } = req.body;
 
     try {
         const newgoal = new goal({
             userId: req.user.userId,
             name,
+            description,
             targetAmount,
-            deadline
+            deadline,
+            priority,
         });
         await newgoal.save();
         return res.status(201).json({ message: "Goal created successfully", newgoal });
@@ -36,12 +38,12 @@ export const viewGoals = async (req, res) => {
 //Update Goal (User & Super Admin)
 export const updateGoal = async (req, res) => {
     const { goalId } = req.params;
-    const { name, targetAmount, deadline } = req.body;
+    const { name, description, targetAmount, deadline, currentAmount, priority } = req.body;
 
     try {
         const query = req.user.role === "superadmin" ? { _id: goalId } : { _id: goalId, userId: req.user.userId };
 
-        const goal = await goal.findOneAndUpdate(query, { name, targetAmount, deadline }, { new: true });
+        const goal = await goal.findOneAndUpdate(query, { name, description, targetAmount, deadline, currentAmount, priority}, { new: true });
         if (!goal) return res.status(404).json({ message: "Goal not found or unauthorized" });
 
         return res.status(200).json({ message: "Goal updated successfully", goal });

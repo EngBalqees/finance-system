@@ -2,16 +2,17 @@ import budget from "../../../DB/model/budget.model.js";
 
 
 //add new budget
-export const createBudget = async (req, res) => {
-    const { category, amount, month, year } = req.body;
+export const createBudget = async (req, res) => {[]
+    const { title, type, amount, startDate,endDate, } = req.body;
 
     try {
         const newbudget = new budget({
             userId: req.user.userId,
-            category,
+            title,
+            type,
             amount,
-            month,
-            year
+            startDate,
+            endDate,
         });
         await newbudget.save();
         return res.status(201).json({ message: "Budget created successfully", newbudget });
@@ -37,11 +38,11 @@ export const viewBudgets = async (req, res) => {
 //update budget User: Can update only their budgets. Super Admin: Can update any user’s budget.
 export const updateBudget = async (req, res) => {
     const  { id } = req.params;
-    const { category, amount, month, year } = req.body;
+    const { title, type, amount, spent, startDate, endDate} = req.body;
     try {
         const query = req.user.role === "superadmin" ? { _id: budgetId } : { _id: budgetId, userId: req.user.userId };
     
-        const budget = await budget.findOneAndUpdate(query, { category, amount, month, year }, { new: true });
+        const budget = await budget.findOneAndUpdate(query, {  title, type, amount, spent, startDate, endDate}, { new: true });
         if (!budget) return res.status(404).json({ message: "Budget not found or unauthorized" });
     
         return res.status(200).json({ message: "Budget updated successfully", budget });

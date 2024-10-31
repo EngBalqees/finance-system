@@ -6,26 +6,59 @@ const budgetSchema = new Schema({
         ref: "User",
         required: true
     },
-    category: {
+    title: {
         type: String,
-        required: true
-    }, // e.g., "Groceries", "Rent"
-    amount: {
+        required: true,
+      },
+      type: {
+        type: String,
+        enum: ['savings', 'expenses', 'investments'], // Define budget types
+        required: true,
+      },
+      amount: {
         type: Number,
-        required: true
-    }, // Total budgeted amount for the category
-    currentSpending: {
+        required: true,
+      },
+      spent: {
         type: Number,
-        default: 0
-    }, // Tracks current spending in this category
-    month: {
-        type: Number,
-        required: true
-    }, // Month for the budget (1 = January, 12 = December)
-    year: {
-        type: Number,
-        required: true
-    } // Year for the budget
+        default: 0, // Amount spent from the budget
+      },
+      status: {
+        type: String,
+        enum: ['active', 'achieved', 'expired'], // Define budget statuses
+        default: 'active', // Default status is active
+      },
+      startDate: {
+        type: Date,
+        required: true,
+      },
+      endDate: {
+        type: Date,
+        required: true,
+      },
+      createdAt: {
+        type: Date,
+        default: Date.now,
+      },
+      updatedAt: {
+        type: Date,
+        default: Date.now,
+      },
 });
+// Middleware to update budget status based on the end date
+budgetSchema.pre('save', function (next) {
+    const currentDate = new Date();
+    
+    if (this.endDate < currentDate) {
+      this.status = 'expired'; // Mark as expired if the end date has passed
+    } else if (this.spent >= this.amount) {
+      this.status = 'achieved'; // Mark as achieved if the spent amount reaches or exceeds the budgeted amount
+    } else {
+      this.status = 'active'; // Keep status active if neither condition is met
+    }
+    
+    next();
+  });
+  
 const budget = mongoose.model("budget",budgetSchema);
 export default budget;
