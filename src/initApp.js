@@ -14,6 +14,9 @@ export const initApp = (app,express) =>{
     app.use('/goal',goal);
     app.use('/report',report);
     app.use('/setting',setting);
+    app.get('/api/data', (req, res) => {
+        res.json({ message: 'Data fetched successfully' });
+      });
     app.use('*', (req, res) => {
         return res.status(404).json({ message: "page not found" });
     });
