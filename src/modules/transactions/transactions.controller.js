@@ -1,21 +1,64 @@
 import Transaction from "../../../DB/model/transactions.model.js";
-
+import budget from "../../../DB/model/budget.model.js";
 //create transaction (user)
 export const createTransaction = async (req, res) => {
     const { amount, type, category, date, description } = req.body;
+
     try {
-        const transaction = new Transaction({
-            userId: req.user.userId,
-            amount,
-            type,
-            category,
-            date,
-            description
+      // Fetch the user's budgets
+      const budgets = await budget.find({ userId: req.user.userId });
+  
+      // Check if the category exists in budgets
+      const relevantBudget = budgets.find((budget) => budget.title === category);
+  
+      if (!relevantBudget) {
+        return res.status(400).json({
+          message: "Category does not match any existing budget title",
         });
-        await transaction.save();
-        res.status(201).json({ message: "Transaction created successfully", transaction });
+      }
+  
+      // Check if the budget is expired
+      if (relevantBudget.status === "expired") {
+        return res.status(400).json({
+          message: "The associated budget has expired and cannot be used for transactions.",
+        });
+      }
+  
+      // Check if the transaction exceeds the budget limit
+      const remainingAmount = relevantBudget.amount - relevantBudget.spent;
+      if (type === "expense" && amount > remainingAmount) {
+        return res.status(400).json({
+          message: "Transaction amount exceeds the available budget.",
+        });
+      }
+  
+      // Create the transaction
+      const newTransaction = new Transaction({
+        userId: req.user.userId,
+        amount,
+        type,
+        category,
+        date,
+        description,
+      });
+  
+      await newTransaction.save();
+  
+      // Update the budget's spent amount if it's an expense
+      if (type === "expense") {
+        relevantBudget.spent += amount;
+        await relevantBudget.save();
+      }
+  
+      res.status(201).json({
+        message: "Transaction added successfully",
+        transaction: newTransaction,
+      });
     } catch (error) {
-        res.status(500).json({ message: "Error creating transaction", error });
+      res.status(500).json({
+        message: "Error adding transaction",
+        error: error.message,
+      });
     }
 }
 

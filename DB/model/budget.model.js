@@ -30,11 +30,10 @@ const budgetSchema = new Schema({
       },
       startDate: {
         type: Date,
-        required: true,
       },
       endDate: {
         type: Date,
-        required: true,
+
       },
       createdAt: {
         type: Date,
@@ -46,19 +45,19 @@ const budgetSchema = new Schema({
       },
 });
 // Middleware to update budget status based on the end date
-budgetSchema.pre('save', function (next) {
-    const currentDate = new Date();
-    
-    if (this.endDate < currentDate) {
-      this.status = 'expired'; // Mark as expired if the end date has passed
-    } else if (this.spent >= this.amount) {
-      this.status = 'achieved'; // Mark as achieved if the spent amount reaches or exceeds the budgeted amount
-    } else {
-      this.status = 'active'; // Keep status active if neither condition is met
-    }
-    
-    next();
-  });
+budgetSchema.pre("save", function (next) {
+  const currentDate = new Date();
+
+  if (this.endDate && this.endDate < currentDate) {
+    this.status = "expired"; // Mark as expired if the end date has passed
+  } else if (this.spent >= this.amount) {
+    this.status = "achieved"; // Mark as achieved if the spent amount reaches or exceeds the budgeted amount
+  } else {
+    this.status = "active"; // Keep status active if neither condition is met
+  }
+
+  next();
+});
   
 const budget = mongoose.model("budget",budgetSchema);
 export default budget;
